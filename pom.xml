@@ -18,6 +18,7 @@
         <module>kitchen-service</module>
         <module>menu-service</module>
         <module>order-service</module>
+        <module>chat-service</module>
         <module>common</module>
     </modules>
 
