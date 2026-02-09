@@ -4,12 +4,15 @@ import com.makanforyou.common.dto.PagedResponse;
 import com.makanforyou.common.dto.PaginationMetadata;
 import com.makanforyou.common.exception.ApplicationException;
 import com.makanforyou.order.dto.*;
+import com.makanforyou.order.entity.Cart;
+import com.makanforyou.order.entity.CartItem;
 import com.makanforyou.order.entity.Order;
 import com.makanforyou.order.entity.OrderItem;
 import com.makanforyou.order.repository.OrderItemRepository;
 import com.makanforyou.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,8 +34,11 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
 
+    @Lazy
+    private final CartService cartService;
+
     /**
-     * Create new order
+     * Create new order from direct request
      */
     public OrderDTO createOrder(Long userId, CreateOrderRequest request) {
         log.info("Creating order for user: {}", userId);
@@ -75,6 +81,58 @@ public class OrderService {
         }
 
         log.info("Order created with ID: {}", order.getId());
+        return mapToDTO(order);
+    }
+
+    /**
+     * Create order from user's cart
+     */
+    public OrderDTO createOrderFromCart(Long userId, String deliveryAddress, String deliveryCity,
+                                         String deliveryState, String deliveryPostalCode,
+                                         String specialInstructions) {
+        log.info("Creating order from cart for user: {}", userId);
+
+        // Get cart and validate
+        Cart cart = cartService.getCartForCheckout(userId);
+
+        // Calculate total from cart
+        BigDecimal orderTotal = cart.getTotal();
+
+        // Create order
+        Order order = Order.builder()
+                .userId(userId)
+                .kitchenId(cart.getKitchenId())
+                .orderTotal(orderTotal)
+                .orderStatus(Order.OrderStatus.PENDING)
+                .confirmationByKitchen(false)
+                .deliveryAddress(deliveryAddress)
+                .deliveryCity(deliveryCity)
+                .deliveryState(deliveryState)
+                .deliveryPostalCode(deliveryPostalCode)
+                .specialInstructions(specialInstructions)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        order = orderRepository.save(order);
+
+        // Create order items from cart items
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = OrderItem.builder()
+                    .orderId(order.getId())
+                    .itemId(cartItem.getItemId())
+                    .itemQuantity(cartItem.getQuantity())
+                    .itemUnitPrice(cartItem.getUnitPrice())
+                    .itemTotal(cartItem.getItemTotal())
+                    .specialRequests(cartItem.getSpecialRequests())
+                    .build();
+            orderItemRepository.save(orderItem);
+        }
+
+        // Clear the cart after successful order creation
+        cartService.clearCart(userId);
+
+        log.info("Order created from cart with ID: {}", order.getId());
         return mapToDTO(order);
     }
 

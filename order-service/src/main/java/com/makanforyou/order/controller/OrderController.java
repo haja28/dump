@@ -44,6 +44,28 @@ public class OrderController {
     }
 
     /**
+     * Create order from cart
+     * POST /api/v1/orders/from-cart
+     */
+    @PostMapping("/from-cart")
+    @Operation(summary = "Create order from cart", description = "Customer creates order from their shopping cart")
+    public ResponseEntity<ApiResponse<OrderDTO>> createOrderFromCart(
+            @RequestHeader("X-User-Id") Long userId,
+            @Valid @RequestBody CreateOrderFromCartRequest request) {
+        log.info("Creating order from cart for user: {}", userId);
+        OrderDTO order = orderService.createOrderFromCart(
+                userId,
+                request.getDeliveryAddress(),
+                request.getDeliveryCity(),
+                request.getDeliveryState(),
+                request.getDeliveryPostalCode(),
+                request.getSpecialInstructions()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(order, "Order created from cart successfully"));
+    }
+
+    /**
      * Get order by ID
      * GET /api/v1/orders/{orderId}
      */
