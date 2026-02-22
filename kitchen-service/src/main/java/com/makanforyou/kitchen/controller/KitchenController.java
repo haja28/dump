@@ -2,6 +2,7 @@ package com.makanforyou.kitchen.controller;
 
 import com.makanforyou.common.dto.ApiResponse;
 import com.makanforyou.common.dto.PagedResponse;
+import com.makanforyou.common.exception.ApplicationException;
 import com.makanforyou.kitchen.dto.KitchenDTO;
 import com.makanforyou.kitchen.dto.KitchenRegistrationRequest;
 import com.makanforyou.kitchen.service.KitchenService;
@@ -44,18 +45,6 @@ public class KitchenController {
     }
 
     /**
-     * Get kitchen by ID
-     * GET /api/v1/kitchens/{kitchenId}
-     */
-    @GetMapping("/{kitchenId}")
-    @Operation(summary = "Get kitchen details", description = "Retrieve kitchen information by ID")
-    public ResponseEntity<ApiResponse<KitchenDTO>> getKitchen(@PathVariable("kitchenId") Long kitchenId) {
-        log.info("Getting kitchen: {}", kitchenId);
-        KitchenDTO kitchen = kitchenService.getKitchenById(kitchenId);
-        return ResponseEntity.ok(ApiResponse.success(kitchen));
-    }
-
-    /**
      * Get my kitchen (current user)
      * GET /api/v1/kitchens/my-kitchen
      */
@@ -66,6 +55,22 @@ public class KitchenController {
         log.info("Getting kitchen for user: {}", userId);
         KitchenDTO kitchen = kitchenService.getKitchenByOwnerUserId(userId);
         return ResponseEntity.ok(ApiResponse.success(kitchen));
+    }
+
+    /**
+     * Search kitchens
+     * GET /api/v1/kitchens/search?query=biryani
+     */
+    @GetMapping("/search")
+    @Operation(summary = "Search kitchens", description = "Search kitchens by name or description")
+    public ResponseEntity<ApiResponse<PagedResponse<KitchenDTO>>> searchKitchens(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        log.info("Searching kitchens with query: {}", query);
+        Pageable pageable = PageRequest.of(page, size);
+        PagedResponse<KitchenDTO> response = kitchenService.searchKitchens(query, pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     /**
@@ -87,19 +92,15 @@ public class KitchenController {
     }
 
     /**
-     * Search kitchens
-     * GET /api/v1/kitchens/search?query=biryani
+     * Get kitchen by ID
+     * GET /api/v1/kitchens/{kitchenId}
      */
-    @GetMapping("/search")
-    @Operation(summary = "Search kitchens", description = "Search kitchens by name or description")
-    public ResponseEntity<ApiResponse<PagedResponse<KitchenDTO>>> searchKitchens(
-            @RequestParam(name = "query") String query,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        log.info("Searching kitchens with query: {}", query);
-        Pageable pageable = PageRequest.of(page, size);
-        PagedResponse<KitchenDTO> response = kitchenService.searchKitchens(query, pageable);
-        return ResponseEntity.ok(ApiResponse.success(response));
+    @GetMapping("/{kitchenId}")
+    @Operation(summary = "Get kitchen details", description = "Retrieve kitchen information by ID")
+    public ResponseEntity<ApiResponse<KitchenDTO>> getKitchen(@PathVariable("kitchenId") Long kitchenId) {
+        log.info("Getting kitchen: {}", kitchenId);
+        KitchenDTO kitchen = kitchenService.getKitchenById(kitchenId);
+        return ResponseEntity.ok(ApiResponse.success(kitchen));
     }
 
     /**
@@ -166,5 +167,20 @@ public class KitchenController {
         log.info("Deactivating kitchen: {}", kitchenId);
         KitchenDTO kitchen = kitchenService.deactivateKitchen(kitchenId);
         return ResponseEntity.ok(ApiResponse.success(kitchen, "Kitchen deactivated successfully"));
+    }
+
+    /**
+     * Update kitchen availability status
+     * PATCH /api/v1/kitchens/{kitchenId}/status?active=1 or active=0
+     */
+    @PatchMapping("/{kitchenId}/status")
+    @Operation(summary = "Update kitchen availability", description = "Update kitchen active status: 1 for active, 0 for inactive")
+    public ResponseEntity<ApiResponse<KitchenDTO>> updateKitchenStatus(
+            @PathVariable("kitchenId") Long kitchenId,
+            @RequestParam(name = "active") int active) {
+        log.info("Updating kitchen status for kitchen: {} to active={}", kitchenId, active);
+        KitchenDTO kitchen = kitchenService.updateKitchenStatus(kitchenId, active);
+        String message = active == 1 ? "Kitchen activated successfully" : "Kitchen deactivated successfully";
+        return ResponseEntity.ok(ApiResponse.success(kitchen, message));
     }
 }

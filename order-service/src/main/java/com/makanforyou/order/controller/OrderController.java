@@ -66,18 +66,6 @@ public class OrderController {
     }
 
     /**
-     * Get order by ID
-     * GET /api/v1/orders/{orderId}
-     */
-    @GetMapping("/{orderId}")
-    @Operation(summary = "Get order", description = "Retrieve order details by ID")
-    public ResponseEntity<ApiResponse<OrderDTO>> getOrder(@PathVariable Long orderId) {
-        log.info("Getting order: {}", orderId);
-        OrderDTO order = orderService.getOrderById(orderId);
-        return ResponseEntity.ok(ApiResponse.success(order));
-    }
-
-    /**
      * Get current user's orders
      * GET /api/v1/orders/my-orders
      */
@@ -90,6 +78,22 @@ public class OrderController {
         log.info("Fetching orders for user: {}", userId);
         Pageable pageable = PageRequest.of(page, size);
         PagedResponse<OrderDTO> response = orderService.getUserOrders(userId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Get my kitchen's orders (current kitchen owner)
+     * GET /api/v1/orders/kitchen/my-orders
+     */
+    @GetMapping("/kitchen/my-orders")
+    @Operation(summary = "Get my kitchen orders", description = "Retrieve orders for current user's kitchen")
+    public ResponseEntity<ApiResponse<PagedResponse<OrderDTO>>> getMyKitchenOrders(
+            @RequestHeader("X-Kitchen-Id") Long kitchenId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        log.info("Fetching orders for my kitchen: {}", kitchenId);
+        Pageable pageable = PageRequest.of(page, size);
+        PagedResponse<OrderDTO> response = orderService.getKitchenOrders(kitchenId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -123,6 +127,18 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size);
         PagedResponse<OrderDTO> response = orderService.getKitchenPendingOrders(kitchenId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Get order by ID
+     * GET /api/v1/orders/{orderId}
+     */
+    @GetMapping("/{orderId}")
+    @Operation(summary = "Get order", description = "Retrieve order details by ID")
+    public ResponseEntity<ApiResponse<OrderDTO>> getOrder(@PathVariable Long orderId) {
+        log.info("Getting order: {}", orderId);
+        OrderDTO order = orderService.getOrderById(orderId);
+        return ResponseEntity.ok(ApiResponse.success(order));
     }
 
     /**

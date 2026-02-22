@@ -193,6 +193,29 @@ public class KitchenService {
     }
 
     /**
+     * Update kitchen availability status
+     * @param kitchenId kitchen ID
+     * @param active 1 for active, 0 for inactive
+     */
+    public KitchenDTO updateKitchenStatus(Long kitchenId, int active) {
+        if (active != 0 && active != 1) {
+            throw new ApplicationException("INVALID_STATUS",
+                    "Status must be 1 (active) or 0 (inactive)");
+        }
+
+        Kitchen kitchen = kitchenRepository.findById(kitchenId)
+                .orElseThrow(() -> new ApplicationException("KITCHEN_NOT_FOUND",
+                        "Kitchen not found"));
+
+        kitchen.setIsActive(active == 1);
+        kitchen.setUpdatedAt(LocalDateTime.now());
+        kitchen = kitchenRepository.save(kitchen);
+
+        log.info("Kitchen status updated to {} for ID: {}", active == 1 ? "active" : "inactive", kitchenId);
+        return mapToDTO(kitchen);
+    }
+
+    /**
      * Deactivate kitchen
      */
     public KitchenDTO deactivateKitchen(Long kitchenId) {
