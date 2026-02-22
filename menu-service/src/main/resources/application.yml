@@ -20,6 +20,12 @@ spring:
     timeout: 60000
   cache:
     type: redis
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+      file-size-threshold: 2KB
 
 server:
   port: 8083
@@ -34,3 +40,21 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+
+# Storage configuration
+storage:
+  upload-dir: ./uploads
+  menu-images-dir: menu-images
+  originals-dir: originals
+  thumbnails-dir: thumbnails
+  thumbnail-width: 300
+  thumbnail-height: 300
+  max-file-size: 10485760
+  allowed-content-types:
+    - image/jpeg
+    - image/png
+    - image/gif
+    - image/webp
+  base-url: /api/v1/images
+  image-quality: 0.85
+

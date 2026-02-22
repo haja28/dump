@@ -28,3 +28,11 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+
+# Cart configuration
+cart:
+  expiration:
+    hours: 24          # Cart expires after 24 hours of inactivity
+    warning-hours: 2   # Show warning when cart is about to expire (2 hours before)
+    cron: "0 0 * * * *" # Run cleanup every hour at :00
+

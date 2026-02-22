@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         PUBLIC_ENDPOINTS.add("/api/v1/auth/refresh");
         PUBLIC_ENDPOINTS.add("/api/v1/kitchens");
         PUBLIC_ENDPOINTS.add("/api/v1/menu-items/search");
+        PUBLIC_ENDPOINTS.add("/api/v1/images");
         PUBLIC_ENDPOINTS.add("/v3/api-docs");
         PUBLIC_ENDPOINTS.add("/swagger-ui");
     }

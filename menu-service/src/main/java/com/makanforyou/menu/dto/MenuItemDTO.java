@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,6 +34,8 @@ public class MenuItemDTO {
     private Integer spicyLevel;
     private Double rating;
     private Set<MenuLabelDTO> labels;
+    private List<MenuItemImageDTO> images;
+    private MenuItemImageDTO primaryImage;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

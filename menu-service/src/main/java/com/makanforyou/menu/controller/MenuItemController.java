@@ -153,4 +153,30 @@ public class MenuItemController {
         MenuItemDTO item = menuItemService.deactivateMenuItem(itemId);
         return ResponseEntity.ok(ApiResponse.success(item, "Menu item deactivated successfully"));
     }
+
+    /**
+     * Get menu item availability
+     * GET /api/v1/menu-items/{itemId}/availability
+     */
+    @GetMapping("/{itemId}/availability")
+    @Operation(summary = "Get menu item availability", description = "Check if menu item is available")
+    public ResponseEntity<ApiResponse<MenuItemDTO>> getMenuItemAvailability(@PathVariable Long itemId) {
+        log.info("Checking availability for menu item: {}", itemId);
+        MenuItemDTO item = menuItemService.getMenuItemById(itemId);
+        return ResponseEntity.ok(ApiResponse.success(item));
+    }
+
+    /**
+     * Update menu item availability
+     * PATCH /api/v1/menu-items/{itemId}/availability
+     */
+    @PatchMapping("/{itemId}/availability")
+    @Operation(summary = "Update menu item availability", description = "Update quantity available for a menu item")
+    public ResponseEntity<ApiResponse<MenuItemDTO>> updateMenuItemAvailability(
+            @PathVariable Long itemId,
+            @RequestParam(name = "quantityAvailable") Integer quantityAvailable) {
+        log.info("Updating availability for menu item: {} to quantity: {}", itemId, quantityAvailable);
+        MenuItemDTO item = menuItemService.updateAvailability(itemId, quantityAvailable);
+        return ResponseEntity.ok(ApiResponse.success(item, "Menu item availability updated successfully"));
+    }
 }

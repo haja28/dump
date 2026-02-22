@@ -64,6 +64,14 @@ spring:
             - RewritePath=/api/v1/menu-labels/(?<segment>.*), /api/v1/menu-labels/${segment}
             - PreserveHostHeader
 
+        # Menu Images Service (serves uploaded images)
+        - id: menu-images-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/images/**
+          filters:
+            - PreserveHostHeader
+
         # Cart Service (Order Service)
         - id: cart-service
           uri: http://localhost:8084
