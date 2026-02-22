@@ -1,0 +1,122 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            series: SERVER_ERROR
+        - PreserveHostHeader
+        - name: RemoveRequestHeader
+          args:
+            name: X-Forwarded-Prefix
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - X-Kitchen-Id
+              - Authorization
+      routes:
+        # Root path
+        - id: root
+          uri: http://localhost:8080
+          predicates:
+            - Path=/
+          filters:
+            - SetPath=/health
+
+        # Auth Service
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - RewritePath=/api/v1/auth/(?<segment>.*), /api/v1/auth/${segment}
+
+        # Kitchen Service
+        - id: kitchen-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/kitchens/**
+          filters:
+            - RewritePath=/api/v1/kitchens/(?<segment>.*), /api/v1/kitchens/${segment}
+            - PreserveHostHeader
+
+        # Menu Service
+        - id: menu-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/menu-items/**,/api/v1/menu-labels/**
+          filters:
+            - RewritePath=/api/v1/menu-items/(?<segment>.*), /api/v1/menu-items/${segment}
+            - RewritePath=/api/v1/menu-labels/(?<segment>.*), /api/v1/menu-labels/${segment}
+            - PreserveHostHeader
+
+        # Menu Images Service (serves uploaded images)
+        - id: menu-images-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/images/**
+          filters:
+            - PreserveHostHeader
+
+        # Cart Service (Order Service)
+        - id: cart-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/cart,/api/v1/cart/**
+          filters:
+            - PreserveHostHeader
+
+        # Order Service
+        - id: order-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/orders/**
+          filters:
+            - PreserveHostHeader
+            - RewritePath=/api/v1/orders/(?<segment>.*), /api/v1/orders/${segment}
+
+        # Chat Service - REST API
+        - id: chat-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/conversations/**,/api/v1/notifications/**
+          filters:
+            - RewritePath=/api/v1/conversations/(?<segment>.*), /api/v1/conversations/${segment}
+            - RewritePath=/api/v1/notifications/(?<segment>.*), /api/v1/notifications/${segment}
+
+        # Chat Service - WebSocket
+        - id: chat-service-ws
+          uri: ws://localhost:8086
+          predicates:
+            - Path=/ws/chat/**
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+logging:
+  level:
+    com.makanforyou: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+
+# JWT Configuration
+jwt:
+  secret: P/UKPOHfp/2hS7GFDfWevnwYHtNu+wNQzSONpCkrJBg=

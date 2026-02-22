@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/makanforyou
+    username: root
+    password: Rsaucm123$
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: makanforyouservice@gmail.com
+    password: bhhp rmud mbdv mfds
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.makanforyou: DEBUG
+    org.springframework.security: DEBUG
+
+jwt:
+  secret: P/UKPOHfp/2hS7GFDfWevnwYHtNu+wNQzSONpCkrJBg=
+  access-token:
+    expiration: 900000
+  refresh-token:
+    expiration: 604800000
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+app:
+  email:
+    verification-link-base-url: ${VERIFICATION_LINK_BASE_URL:http://localhost:8081/api/v1/auth}
+    verification-token-expiration-hours: ${TOKEN_EXPIRATION_HOURS:24}
+
+

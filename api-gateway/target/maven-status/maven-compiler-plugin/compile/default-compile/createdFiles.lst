@@ -1,0 +1,4 @@
+com\makanforyou\gateway\exception\GlobalErrorHandler.class
+com\makanforyou\gateway\ApiGatewayApplication.class
+com\makanforyou\gateway\filter\JwtAuthenticationFilter.class
+com\makanforyou\gateway\controller\HealthController.class

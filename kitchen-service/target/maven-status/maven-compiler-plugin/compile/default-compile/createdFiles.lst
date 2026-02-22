@@ -1,0 +1,13 @@
+com\makanforyou\kitchen\dto\KitchenRegistrationRequest.class
+com\makanforyou\kitchen\entity\Kitchen.class
+com\makanforyou\kitchen\controller\KitchenController.class
+com\makanforyou\kitchen\service\KitchenService.class
+com\makanforyou\kitchen\dto\KitchenDTO.class
+com\makanforyou\kitchen\dto\KitchenRegistrationRequest$KitchenRegistrationRequestBuilder.class
+com\makanforyou\kitchen\config\JpaConfig.class
+com\makanforyou\kitchen\dto\KitchenDTO$KitchenDTOBuilder.class
+com\makanforyou\kitchen\repository\KitchenRepository.class
+com\makanforyou\kitchen\exception\GlobalExceptionHandler.class
+com\makanforyou\kitchen\entity\Kitchen$KitchenBuilder.class
+com\makanforyou\kitchen\entity\Kitchen$ApprovalStatus.class
+com\makanforyou\kitchen\KitchenServiceApplication.class
